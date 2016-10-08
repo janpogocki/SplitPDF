@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="SplitPDF.jnlp">
+  <information>
+    <title>SplitPDF</title>
+    <vendor>Unknown</vendor>
+    <description>SplitPDF</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="SplitPDF.jar" size="19394" download="eager" />
+  </resources>
+  <jfx:javafx-desc  width="600" height="400" main-class="splitpdf.Main"  name="SplitPDF" />
+  <update check="background"/>
+</jnlp>

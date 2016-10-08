@@ -17,7 +17,7 @@
       <Label layoutX="20.0" layoutY="60.0" prefHeight="21.0" prefWidth="110.0" text="Podział (w %):" />
       <Slider layoutX="133.0" layoutY="62.0" prefHeight="17.0" prefWidth="258.0" value="50.0" />
       <TextField alignment="CENTER" disable="true" layoutX="407.0" layoutY="55.0" prefHeight="31.0" prefWidth="45.0" text="50" />
-      <ProgressBar layoutX="14.0" layoutY="97.0" prefHeight="23.0" prefWidth="366.0" progress="0.0" />
+      <ProgressBar layoutX="20.0" layoutY="97.0" prefHeight="23.0" prefWidth="356.0" progress="0.0" />
       <Button layoutX="389.0" layoutY="93.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="92.0" text="Wykonaj">
          <font>
             <Font name="System Bold" size="15.0" />
