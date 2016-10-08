@@ -25,6 +25,12 @@ import java.util.List;
  */
 
 public class SplitPDF {
+    SplitPDF(String _path, String _pdfFilename, double _percent) {
+        PDF2img(_path, _pdfFilename);
+        divideImg("D:\\Pobrane\\temp_splitpdf", "6.png", 0.5);
+        combinePDF("D:\\Pobrane");
+    }
+
     private static void PDF2img(String path, String pdfFilename){
         try {
 
@@ -36,8 +42,8 @@ public class SplitPDF {
             int pageCounter = 0;
             for (PDPage page : document.getPages())
             {
-                BufferedImage bim = pdfRenderer.renderImageWithDPI(pageCounter, 300, ImageType.RGB);
-                ImageIOUtil.writeImage(bim, path + "/temp_splitpdf/" + (pageCounter++) + ".png", 300);
+                BufferedImage bim = pdfRenderer.renderImageWithDPI(pageCounter, 100, ImageType.RGB);
+                ImageIOUtil.writeImage(bim, path + "/temp_splitpdf/" + (pageCounter++) + ".png", 100);
             }
             document.close();
         } catch (Exception e) {
@@ -67,7 +73,7 @@ public class SplitPDF {
     }
 
     private static void combinePDF(String path){
-        int numberOfFiles = new File(path).list().length/2;
+        int numberOfFiles = new File(path + "/temp_splitpdf").list().length/2;
         int i = 0;
 
         PDDocument doc = new PDDocument();
@@ -77,7 +83,8 @@ public class SplitPDF {
 
             while (j < 3){
                 try {
-                    InputStream in = new FileInputStream(path + "/" + i + "_" + j + ".png");
+                    String pathToImg = path + "/temp_splitpdf/" + i + "_" + j + ".png";
+                    InputStream in = new FileInputStream(pathToImg);
                     BufferedImage bimg = ImageIO.read(in);
                     float width = bimg.getWidth() ;
                     float height = bimg.getHeight();
@@ -90,7 +97,7 @@ public class SplitPDF {
                     contentStream.drawImage(pdImageXObject, 0, 0);
                     contentStream.close();
 
-                    //System.out.println(path + "/" + i + "_" + j + ".png");
+                    new File(pathToImg).delete();
 
                     j++;
                 } catch (IOException e){
@@ -109,9 +116,9 @@ public class SplitPDF {
         }
     }
 
-    public static void main(String[] args){
+  /*  public static void main(String[] args){
         //PDF2img("D:\\Pobrane", "pdf.pdf");
-        //divideImg("D:\\Pobrane\\temp_splitpdf", "0.png", 0.2);
-        combinePDF("D:\\Pobrane\\temp_splitpdf");
-    }
+        //divideImg("D:\\Pobrane\\temp_splitpdf", "6.png", 0.5);
+        //combinePDF("D:\\Pobrane");
+    }*/
 }

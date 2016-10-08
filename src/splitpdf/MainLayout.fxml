@@ -15,17 +15,17 @@
 <Pane minHeight="210.0" minWidth="500.0" prefHeight="210.0" prefWidth="500.0" GridPane.columnIndex="1" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label layoutX="20.0" layoutY="60.0" prefHeight="21.0" prefWidth="110.0" text="Podział (w %):" />
-      <Slider layoutX="133.0" layoutY="62.0" prefHeight="17.0" prefWidth="258.0" value="50.0" />
-      <TextField alignment="CENTER" disable="true" layoutX="407.0" layoutY="55.0" prefHeight="31.0" prefWidth="45.0" text="50" />
-      <ProgressBar layoutX="20.0" layoutY="97.0" prefHeight="23.0" prefWidth="356.0" progress="0.0" />
-      <Button layoutX="389.0" layoutY="93.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="92.0" text="Wykonaj">
+      <Slider fx:id="slider" layoutX="133.0" layoutY="62.0" max="70.0" min="30.0" minorTickCount="0" prefHeight="17.0" prefWidth="258.0" value="50.0" />
+      <TextField fx:id="sliderTextField" alignment="CENTER" disable="true" layoutX="407.0" layoutY="55.0" prefHeight="31.0" prefWidth="45.0" text="50" />
+      <ProgressBar fx:id="progressBar" layoutX="20.0" layoutY="97.0" prefHeight="23.0" prefWidth="356.0" progress="0.0" />
+      <Button fx:id="buttonDo" disable="true" layoutX="389.0" layoutY="93.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="92.0" text="Wykonaj">
          <font>
             <Font name="System Bold" size="15.0" />
          </font>
       </Button>
-      <Button layoutX="20.0" layoutY="14.0" mnemonicParsing="false" text="Przeglądaj..." />
-      <Label layoutX="133.0" layoutY="19.0" text="Nie wybrano pliku..." />
-      <ImageView fitHeight="72.0" fitWidth="355.0" layoutX="98.0" layoutY="134.0" pickOnBounds="true" preserveRatio="true">
+      <Button fx:id="buttonBrowse" layoutX="20.0" layoutY="14.0" mnemonicParsing="false" text="Przeglądaj..." />
+      <Label fx:id="labelBrowse" layoutX="133.0" layoutY="19.0" text="Nie wybrano pliku..." />
+      <ImageView fx:id="imageView" fitHeight="72.0" fitWidth="355.0" layoutX="98.0" layoutY="134.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@jph_logo.png" />
          </image>
