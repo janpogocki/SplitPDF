@@ -11,27 +11,56 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 /**
- * Created by Jan on 07.10.2016.
+ * @author Jan Pogocki
+ * Created on 07.10.2016.
  * Splits PDFs
  */
 
 public class SplitPDF {
-    SplitPDF(String _path, String _pdfFilename, double _percent) {
-        PDF2img(_path, _pdfFilename);
-        divideImg("D:\\Pobrane\\temp_splitpdf", "6.png", 0.5);
-        combinePDF("D:\\Pobrane");
+    private int counterToDo = 0;
+    private int counterDone = 0;
+    private int numberOfPages = 0;
+
+    SplitPDF(String _path, String _pdfFilename) {
+        countHowMuchToDo(_path, _pdfFilename);
     }
 
-    private static void PDF2img(String path, String pdfFilename){
+    public void execute(String _path, String _pdfFilename, double _percent){
+        PDF2img(_path, _pdfFilename);
+
+        for (int i=0; i<numberOfPages; i++)
+            divideImg(_path + "/temp_splitpdf", i + ".png", _percent);
+
+        combinePDF(_path);
+    }
+
+    private void countHowMuchToDo(String path, String pdfFilename){
+        PDDocument doc = null;
+        try {
+            doc = PDDocument.load(new File(path + "/" + pdfFilename));
+            numberOfPages = doc.getNumberOfPages();
+            counterToDo = numberOfPages*4; //parse, divide, combine, combine
+            doc.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public double progressStatus(){
+        if (counterToDo == 0)
+            return 0;
+        else
+            return counterDone/counterToDo;
+    }
+
+    private void PDF2img(String path, String pdfFilename){
         try {
 
             File dstFile = new File(path + "/temp_splitpdf");
@@ -44,6 +73,7 @@ public class SplitPDF {
             {
                 BufferedImage bim = pdfRenderer.renderImageWithDPI(pageCounter, 100, ImageType.RGB);
                 ImageIOUtil.writeImage(bim, path + "/temp_splitpdf/" + (pageCounter++) + ".png", 100);
+                counterDone++;
             }
             document.close();
         } catch (Exception e) {
@@ -51,7 +81,7 @@ public class SplitPDF {
         }
     }
 
-    private static void divideImg(String path, String imgFilename, double percent){
+    private void divideImg(String path, String imgFilename, double percent){
         File fileImg = new File(path + "/" + imgFilename);
         BufferedImage img = null;
 
@@ -67,12 +97,13 @@ public class SplitPDF {
             ImageIO.write(img1, "png", new File(path + "/" + imgFilenameShort + "_1.png"));
             ImageIO.write(img2, "png", new File(path + "/" + imgFilenameShort + "_2.png"));
             fileImg.delete();
+            counterDone++;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void combinePDF(String path){
+    private void combinePDF(String path){
         int numberOfFiles = new File(path + "/temp_splitpdf").list().length/2;
         int i = 0;
 
@@ -99,6 +130,7 @@ public class SplitPDF {
 
                     new File(pathToImg).delete();
 
+                    counterDone++;
                     j++;
                 } catch (IOException e){
                     e.printStackTrace();

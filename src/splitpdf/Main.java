@@ -1,14 +1,13 @@
 package splitpdf;
 
 import javafx.application.Application;
-import javafx.event.EventHandler;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -72,9 +71,11 @@ public class Main extends Application {
             buttonDo.setDisable(true);
             slider.setDisable(true);
             progressBar.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+
+            // run AsyncTask
+            AsyncTaskRunner runner = new AsyncTaskRunner(filePDF[0], slider.getValue()/100, progressBar);
+            runner.execute();
         }));
-
-
 
         primaryStage.setScene(new Scene(root, 500, 210));
         primaryStage.setResizable(false);
@@ -84,4 +85,56 @@ public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+
+    public class AsyncTaskRunner extends AsyncTask {
+        private File file;
+        private double percent;
+        private SplitPDF spdf = null;
+        private ProgressBar progressBar = null;
+
+        public AsyncTaskRunner(File file, double percent, ProgressBar progressBar) {
+            this.file = file;
+            this.percent = percent;
+            this.progressBar = progressBar;
+        }
+
+        @Override
+        public void onPreExecute() {
+            spdf = new SplitPDF(file.getParent(), file.getName());
+
+            Task task = new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    while (spdf.progressStatus() != 1){
+                        progressBar.setProgress(spdf.progressStatus());
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return null;
+                }
+            };
+
+            //task.run();
+        }
+
+        @Override
+        public void doInBackground() {
+            spdf.execute(file.getParent(), file.getName(), percent);
+        }
+
+        @Override
+        public void onPostExecute() {
+            System.out.println("ukonczono!!!");
+        }
+
+        @Override
+        public void progressCallback(Object... params) {
+
+        }
+
+    }
+
 }
