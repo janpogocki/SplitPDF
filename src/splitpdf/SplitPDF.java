@@ -57,7 +57,7 @@ public class SplitPDF {
         if (counterToDo == 0)
             return 0;
         else
-            return counterDone/counterToDo;
+            return (double) counterDone / (double) counterToDo;
     }
 
     private void PDF2img(String path, String pdfFilename){

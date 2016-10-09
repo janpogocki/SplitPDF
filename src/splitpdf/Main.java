@@ -70,11 +70,44 @@ public class Main extends Application {
             buttonBrowse.setDisable(true);
             buttonDo.setDisable(true);
             slider.setDisable(true);
-            progressBar.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
 
-            // run AsyncTask
-            AsyncTaskRunner runner = new AsyncTaskRunner(filePDF[0], slider.getValue()/100, progressBar);
-            runner.execute();
+
+            SplitPDF spdf = new SplitPDF(filePDF[0].getParent(), filePDF[0].getName());
+
+
+            Task task = new Task<Void>() {
+                @Override public Void call() {
+                    while (spdf.progressStatus() <= 1) {
+                        updateProgress(spdf.progressStatus(), 1);
+                    }
+                    Thread.currentThread().interrupt();
+                    return null;
+                }
+            };
+
+            progressBar.progressProperty().bind(task.progressProperty());
+            new Thread(task).start();
+
+            Task task2 = new Task<Void>() {
+                @Override public Void call() {
+                        progressBar.progressProperty().unbind();
+                        progressBar.setProgress(0);
+                        buttonBrowse.setDisable(false);
+                        buttonDo.setDisable(false);
+                        slider.setDisable(false);
+                    return null;
+                }
+            };
+
+            Thread mainThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    spdf.execute(filePDF[0].getParent(), filePDF[0].getName(), slider.getValue()/100);
+                    new Thread(task2).start();
+                }
+            });
+
+            mainThread.start();
         }));
 
         primaryStage.setScene(new Scene(root, 500, 210));
@@ -85,56 +118,4 @@ public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
-    public class AsyncTaskRunner extends AsyncTask {
-        private File file;
-        private double percent;
-        private SplitPDF spdf = null;
-        private ProgressBar progressBar = null;
-
-        public AsyncTaskRunner(File file, double percent, ProgressBar progressBar) {
-            this.file = file;
-            this.percent = percent;
-            this.progressBar = progressBar;
-        }
-
-        @Override
-        public void onPreExecute() {
-            spdf = new SplitPDF(file.getParent(), file.getName());
-
-            Task task = new Task() {
-                @Override
-                protected Object call() throws Exception {
-                    while (spdf.progressStatus() != 1){
-                        progressBar.setProgress(spdf.progressStatus());
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    return null;
-                }
-            };
-
-            //task.run();
-        }
-
-        @Override
-        public void doInBackground() {
-            spdf.execute(file.getParent(), file.getName(), percent);
-        }
-
-        @Override
-        public void onPostExecute() {
-            System.out.println("ukonczono!!!");
-        }
-
-        @Override
-        public void progressCallback(Object... params) {
-
-        }
-
-    }
-
 }
