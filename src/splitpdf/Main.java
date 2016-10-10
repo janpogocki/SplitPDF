@@ -4,12 +4,16 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +26,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("MainLayout.fxml"));
         primaryStage.setTitle("SplitPDF - podziel strony!");
+        primaryStage.getIcons().add(new Image(Main.class.getResourceAsStream("pdf_icon.png")));
 
         Button buttonBrowse = (Button) root.lookup("#buttonBrowse");
         Button buttonDo = (Button) root.lookup("#buttonDo");
@@ -90,11 +95,33 @@ public class Main extends Application {
 
             Task task2 = new Task<Void>() {
                 @Override public Void call() {
-                        progressBar.progressProperty().unbind();
-                        progressBar.setProgress(0);
-                        buttonBrowse.setDisable(false);
-                        buttonDo.setDisable(false);
-                        slider.setDisable(false);
+                    progressBar.progressProperty().unbind();
+                    progressBar.setProgress(0);
+                    buttonBrowse.setDisable(false);
+                    buttonDo.setDisable(false);
+                    slider.setDisable(false);
+
+                    return null;
+                }
+            };
+
+            Task taskAlert = new Task<Void>() {
+                @Override
+                public Void call() {
+
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Informacja");
+                            alert.setHeaderText(null);
+                            alert.setContentText("Dokument PDF został podzielony poprawnie!");
+
+                            alert.initOwner(primaryStage);
+
+                            alert.showAndWait();
+                        }
+                    });
                     return null;
                 }
             };
@@ -103,11 +130,13 @@ public class Main extends Application {
                 @Override
                 public void run() {
                     spdf.execute(filePDF[0].getParent(), filePDF[0].getName(), slider.getValue()/100);
-                    new Thread(task2).start();
+                    new Thread(task2).run();
+                    new Thread(taskAlert).start();
                 }
             });
 
             mainThread.start();
+
         }));
 
         primaryStage.setScene(new Scene(root, 500, 210));

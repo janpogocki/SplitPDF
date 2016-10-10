@@ -33,10 +33,10 @@ public class SplitPDF {
     }
 
     public void execute(String _path, String _pdfFilename, double _percent){
-        PDF2img(_path, _pdfFilename);
+        PDF2img(_path, _pdfFilename, _percent);
 
-        for (int i=0; i<numberOfPages; i++)
-            divideImg(_path + "/temp_splitpdf", i + ".png", _percent);
+        /*for (int i=0; i<numberOfPages; i++)
+            divideImg(_path + "/temp_splitpdf", i + ".png", _percent);*/
 
         combinePDF(_path);
     }
@@ -60,7 +60,7 @@ public class SplitPDF {
             return (double) counterDone / (double) counterToDo;
     }
 
-    private void PDF2img(String path, String pdfFilename){
+    private void PDF2img(String path, String pdfFilename, double percent){
         try {
 
             File dstFile = new File(path + "/temp_splitpdf");
@@ -72,8 +72,20 @@ public class SplitPDF {
             for (PDPage page : document.getPages())
             {
                 BufferedImage bim = pdfRenderer.renderImageWithDPI(pageCounter, 100, ImageType.RGB);
-                ImageIOUtil.writeImage(bim, path + "/temp_splitpdf/" + (pageCounter++) + ".png", 100);
+                ImageIOUtil.writeImage(bim, path + "/temp_splitpdf/" + pageCounter + ".jpg", 100);
                 counterDone++;
+
+                class RunnableWithPC implements Runnable {
+                    int pc;
+                    RunnableWithPC(int _pc) { pc =_pc; }
+                    public void run() {
+                        divideImg(path + "/temp_splitpdf", pc + ".jpg", percent);
+                    }
+                }
+                Thread additional = new Thread(new RunnableWithPC(pageCounter));
+                additional.run();
+
+                pageCounter++;
             }
             document.close();
         } catch (Exception e) {
@@ -93,9 +105,9 @@ public class SplitPDF {
             BufferedImage img1 = img.getSubimage(0, 0, (int) (imgWidth*percent), imgHeight);
             BufferedImage img2 = img.getSubimage((int) (imgWidth*percent), 0, (int) (imgWidth*(1-percent)), imgHeight);
 
-            String imgFilenameShort = imgFilename.split(".png")[0];
-            ImageIO.write(img1, "png", new File(path + "/" + imgFilenameShort + "_1.png"));
-            ImageIO.write(img2, "png", new File(path + "/" + imgFilenameShort + "_2.png"));
+            String imgFilenameShort = imgFilename.split(".jpg")[0];
+            ImageIO.write(img1, "jpg", new File(path + "/" + imgFilenameShort + "_1.jpg"));
+            ImageIO.write(img2, "jpg", new File(path + "/" + imgFilenameShort + "_2.jpg"));
             fileImg.delete();
             counterDone++;
         } catch (IOException e) {
@@ -114,7 +126,7 @@ public class SplitPDF {
 
             while (j < 3){
                 try {
-                    String pathToImg = path + "/temp_splitpdf/" + i + "_" + j + ".png";
+                    String pathToImg = path + "/temp_splitpdf/" + i + "_" + j + ".jpg";
                     InputStream in = new FileInputStream(pathToImg);
                     BufferedImage bimg = ImageIO.read(in);
                     float width = bimg.getWidth() ;
