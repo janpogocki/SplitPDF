@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_splitpdf" default="compile.module.splitpdf">
+  <dirname property="module.splitpdf.basedir" file="${ant.file.module_splitpdf}"/>
+  
+  <property name="module.jdk.home.splitpdf" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.splitpdf" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.splitpdf" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.splitpdf" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="splitpdf.output.dir" value="${module.splitpdf.basedir}/out/production/SplitPDF"/>
+  <property name="splitpdf.testoutput.dir" value="${module.splitpdf.basedir}/out/test/SplitPDF"/>
+  
+  <path id="splitpdf.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="splitpdf.module.production.classpath">
+    <path refid="${module.jdk.classpath.splitpdf}"/>
+    <path refid="library.pdfbox-app-2.0.3.classpath"/>
+  </path>
+  
+  <path id="splitpdf.runtime.production.module.classpath">
+    <pathelement location="${splitpdf.output.dir}"/>
+    <path refid="library.pdfbox-app-2.0.3.classpath"/>
+  </path>
+  
+  <path id="splitpdf.module.classpath">
+    <path refid="${module.jdk.classpath.splitpdf}"/>
+    <pathelement location="${splitpdf.output.dir}"/>
+    <path refid="library.pdfbox-app-2.0.3.classpath"/>
+  </path>
+  
+  <path id="splitpdf.runtime.module.classpath">
+    <pathelement location="${splitpdf.testoutput.dir}"/>
+    <pathelement location="${splitpdf.output.dir}"/>
+    <path refid="library.pdfbox-app-2.0.3.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.splitpdf">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.splitpdf">
+    <patternset refid="excluded.from.module.splitpdf"/>
+  </patternset>
+  
+  <path id="splitpdf.module.sourcepath">
+    <dirset dir="${module.splitpdf.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.splitpdf" depends="compile.module.splitpdf.production,compile.module.splitpdf.tests" description="Compile module SplitPDF"/>
+  
+  <target name="compile.module.splitpdf.production" depends="register.custom.compilers" description="Compile module SplitPDF; production classes">
+    <mkdir dir="${splitpdf.output.dir}"/>
+    <javac2 destdir="${splitpdf.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.splitpdf}/javac">
+      <compilerarg line="${compiler.args.splitpdf}"/>
+      <bootclasspath refid="splitpdf.module.bootclasspath"/>
+      <classpath refid="splitpdf.module.production.classpath"/>
+      <src refid="splitpdf.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.splitpdf"/>
+    </javac2>
+    
+    <copy todir="${splitpdf.output.dir}">
+      <fileset dir="${module.splitpdf.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.splitpdf.tests" depends="register.custom.compilers,compile.module.splitpdf.production" description="compile module SplitPDF; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.splitpdf" description="cleanup module">
+    <delete dir="${splitpdf.output.dir}"/>
+    <delete dir="${splitpdf.testoutput.dir}"/>
+  </target>
+</project>

@@ -4,16 +4,13 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,20 +79,27 @@ public class Main extends Application {
 
             Task task = new Task<Void>() {
                 @Override public Void call() {
-                    while (spdf.progressStatus() <= 1) {
+                    while (spdf.progressStatus() < 1) {
                         updateProgress(spdf.progressStatus(), 1);
+
+                        double percent = spdf.progressStatus()*100;
+                        updateMessage(String.format("%.1f", percent) + "%");
                     }
+
+                    updateMessage("Wykonaj");
                     Thread.currentThread().interrupt();
                     return null;
                 }
             };
 
             progressBar.progressProperty().bind(task.progressProperty());
+            buttonDo.textProperty().bind(task.messageProperty());
             new Thread(task).start();
 
             Task task2 = new Task<Void>() {
                 @Override public Void call() {
                     progressBar.progressProperty().unbind();
+                    buttonBrowse.textProperty().unbind();
                     progressBar.setProgress(0);
                     buttonBrowse.setDisable(false);
                     buttonDo.setDisable(false);
